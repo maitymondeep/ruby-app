@@ -39,39 +39,39 @@ defaultRules:
   create: true
   rules:
     alertmanager: true
-    etcd: true
-    configReloaders: true
-    general: true
-    k8sContainerCpuUsageSecondsTotal: true
-    k8sContainerMemoryCache: true
-    k8sContainerMemoryRss: true
-    k8sContainerMemorySwap: true
-    k8sContainerResource: true
-    k8sContainerMemoryWorkingSetBytes: true
-    k8sPodOwner: true
-    kubeApiserverAvailability: true
-    kubeApiserverBurnrate: true
-    kubeApiserverHistogram: true
-    kubeApiserverSlos: true
-    kubeControllerManager: true
-    kubelet: true
-    kubeProxy: true
-    kubePrometheusGeneral: true
-    kubePrometheusNodeRecording: true
-    kubernetesApps: true
-    kubernetesResources: true
-    kubernetesStorage: true
-    kubernetesSystem: true
-    kubeSchedulerAlerting: true
-    kubeSchedulerRecording: true
-    kubeStateMetrics: true
-    network: true
-    node: true
-    nodeExporterAlerting: true
-    nodeExporterRecording: true
+    etcd: false
+    configReloaders: false
+    general: false
+    k8sContainerCpuUsageSecondsTotal: false
+    k8sContainerMemoryCache: false
+    k8sContainerMemoryRss: false
+    k8sContainerMemorySwap: false
+    k8sContainerResource: false
+    k8sContainerMemoryWorkingSetBytes: false
+    k8sPodOwner: false
+    kubeApiserverAvailability: false
+    kubeApiserverBurnrate: false
+    kubeApiserverHistogram: false
+    kubeApiserverSlos: false
+    kubeControllerManager: false
+    kubelet: false
+    kubeProxy: false
+    kubePrometheusGeneral: false
+    kubePrometheusNodeRecording: false
+    kubernetesApps: false
+    kubernetesResources: false
+    kubernetesStorage: false
+    kubernetesSystem: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeStateMetrics: false
+    network: false
+    node: false
+    nodeExporterAlerting: false
+    nodeExporterRecording: false
     prometheus: true
-    prometheusOperator: true
-    windows: true
+    prometheusOperator: false
+    windows: false
 
   ## Reduce app namespace alert scope
   appNamespacesTarget: ".*"
@@ -193,7 +193,7 @@ additionalPrometheusRulesMap: {}
 ##
 global:
   rbac:
-    create: true
+    create: false
 
     ## Create ClusterRoles that extend the existing view, edit and admin ClusterRoles to interact with prometheus-operator CRDs
     ## Ref: https://kubernetes.io/docs/reference/access-authn-authz/rbac/#aggregated-clusterroles
@@ -1127,7 +1127,7 @@ kubernetesServiceMonitors:
 ## Component scraping the kube api server
 ##
 kubeApiServer:
-  enabled: true
+  enabled: false
   tlsConfig:
     serverName: kubernetes
     insecureSkipVerify: false
@@ -1201,7 +1201,7 @@ kubeApiServer:
 ## Component scraping the kubelet and kubelet-hosted cAdvisor
 ##
 kubelet:
-  enabled: true
+  enabled: false
   namespace: kube-system
 
   serviceMonitor:
@@ -1401,7 +1401,7 @@ kubelet:
 ## Component scraping the kube controller manager
 ##
 kubeControllerManager:
-  enabled: true
+  enabled: false
 
   ## If your kube controller manager is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1491,7 +1491,7 @@ kubeControllerManager:
 ## Component scraping coreDns. Use either this or kubeDns
 ##
 coreDns:
-  enabled: true
+  enabled: false
   service:
     enabled: true
     port: 9153
@@ -1732,7 +1732,7 @@ kubeEtcd:
 ## Component scraping kube scheduler
 ##
 kubeScheduler:
-  enabled: true
+  enabled: false
 
   ## If your kube scheduler is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1821,7 +1821,7 @@ kubeScheduler:
 ## Component scraping kube proxy
 ##
 kubeProxy:
-  enabled: true
+  enabled: false
 
   ## If your kube proxy is not deployed as a pod, specify IPs it can be found on
   ##
@@ -1896,7 +1896,7 @@ kubeProxy:
 ## Component scraping kube state metrics
 ##
 kubeStateMetrics:
-  enabled: true
+  enabled: false
 
 ## Configuration for kube-state-metrics subchart
 ##
@@ -2057,7 +2057,7 @@ prometheus-node-exporter:
 ## Manages Prometheus and Alertmanager components
 ##
 prometheusOperator:
-  enabled: true
+  enabled: false
 
   ## Number of old replicasets to retain ##
   ## The default value is 10, 0 will garbage-collect old replicasets ##
