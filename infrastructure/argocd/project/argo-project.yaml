@@ -8,6 +8,8 @@ spec:
   destinations:
   - namespace: ruby-dev
     server: https://kubernetes.default.svc
+  - namespace: observability
+    server: https://kubernetes.default.svc
   sourceRepos:
   - https://github.com/maitymondeep/ruby-app
   clusterResourceWhitelist:
