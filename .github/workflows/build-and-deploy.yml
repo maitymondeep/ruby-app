@@ -36,7 +36,7 @@ jobs:
             ruby-${{ runner.os }}-
 
       - name: Set up Ruby ## Set-up Ruby in GitHub Runner
-        uses: actions/setup-ruby@v2
+        uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.7
 
@@ -97,7 +97,7 @@ jobs:
       #       ruby-${{ runner.os }}-
 
       # - name: Set up Ruby ## Install Ruby in GitHub Runner
-      #   uses: actions/setup-ruby@v2
+      #   uses: actions/setup-ruby@v1
       #   with:
       #     ruby-version: 2.7
 
