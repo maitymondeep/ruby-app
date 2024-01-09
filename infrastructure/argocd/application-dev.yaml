@@ -5,21 +5,24 @@ metadata:
   namespace: argocd
 spec:
   project: ruby-app
-  source:
-    repoURL: https://github.com/maitymondeep/ruby-app
-    path: infrastructure/helm
-    targetRevision: HEAD
-    helm:
-      valueFiles:
-        - values.yaml
-        - environments/dev/dev-values.yaml
-  destination:
-    namespace: ruby-dev
-    name: in-cluster
   syncPolicy:
-    syncOptions:
-      - ApplyOutOfSyncOnly=true
-      - CreateNamespace=true
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ruby-dev
+  sources:
+    - repoURL: https://github.com/maitymondeep/ruby-app
+      path: infrastructure/helm
+      targetRevision: develop
+      helm:
+        valueFiles:
+          - values.yaml
+          - $values/ruby-app/environments/dev/dev-values.yaml
+    - repoURL: 'https://github.com/maitymondeep/gitops-helm-values'
+      targetRevision: HEAD
+      ref: values

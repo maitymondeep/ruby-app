@@ -1,25 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ruby-app-qa
-  namespace: default
+  name: ruby-app
+  namespace: argocd
 spec:
   project: ruby-app
-  source:
-    repoURL: https://github.com/maitymondeep/ruby-app
-    path: infrastructure/helm/environments/qa
-    targetRevision: HEAD
-    helm:
-      valueFiles:
-        - values.yaml
-        - environments/qa/qa-values.yaml
-  destination:
-    namespace: qa
-    name: nonprod
   syncPolicy:
-    syncOptions:
-      - ApplyOutOfSyncOnly=true
-      - CreateNamespace=true
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ruby-qa
+  sources:
+    - repoURL: https://github.com/maitymondeep/ruby-app
+      path: infrastructure/helm
+      targetRevision: develop
+      helm:
+        valueFiles:
+          - values.yaml
+          - $values/ruby-app/environments/qa/qa-values.yaml
+    - repoURL: 'https://github.com/maitymondeep/gitops-helm-values'
+      targetRevision: HEAD
+      ref: values

@@ -1,25 +1,28 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ruby-app-preprod
-  namespace: default
+  name: ruby-app
+  namespace: argocd
 spec:
   project: ruby-app
-  source:
-    repoURL: https://github.com/maitymondeep/ruby-app
-    path: infrastructure/helm/environments/preprod
-    targetRevision: HEAD
-    helm:
-      valueFiles:
-        - values.yaml
-        - environments/preprod/preprod-values.yaml
-  destination:
-    namespace: preprod
-    name: prod
   syncPolicy:
-    syncOptions:
-      - ApplyOutOfSyncOnly=true
-      - CreateNamespace=true
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ruby-preprod
+  sources:
+    - repoURL: https://github.com/maitymondeep/ruby-app
+      path: infrastructure/helm
+      targetRevision: develop
+      helm:
+        valueFiles:
+          - values.yaml
+          - $values/ruby-app/environments/preprod/preprod-values.yaml
+    - repoURL: 'https://github.com/maitymondeep/gitops-helm-values'
+      targetRevision: HEAD
+      ref: values

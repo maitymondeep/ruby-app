@@ -184,20 +184,26 @@ jobs:
     if: startsWith(github.ref_name, 'develop')
     steps:
     - name: Checkout Repository ## Checkout Repo
-      uses: actions/checkout@v3.3.0
+      uses: actions/checkout@v4
+      with:
+        repository: maitymondeep/gitops-helm-values
+        token: ${{ secrets.PAT_TOKEN }}
+        path: '/gitops-helm-values'
 
     - name: Update Image Tag Values ## Replace Image_Tag in helm values file
       run: |
-        helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments/dev
+        cd $GITHUB_WORKSPACE/gitops-helm-values
+        helm_chart_directory=infrastructure/helm/environments/dev
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         # Update the values.yaml file with the new image tag
         sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/dev-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
-      run: | 
+      run: |
+        cd $GITHUB_WORKSPACE/gitops-helm-values
         git config --global user.name 'Mondeep Maity'
-        git config --global user.email 'maity.mondeep@outlook.com'
+        git config --global user.email 'mondeep.maity2104@gmail.com'
         git commit -am "updating image tag"
         git push
 
