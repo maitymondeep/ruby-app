@@ -2,7 +2,7 @@ global:
   projectName: ruby
   env: dev
 
-imageTag: $new_image_tag
+imageTag: ""
 
 ## Pod HealthCheck
 readinessProbe:

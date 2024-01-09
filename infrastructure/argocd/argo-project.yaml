@@ -6,7 +6,7 @@ metadata:
 spec:
   description: "My ArgoCD Project"
   destinations:
-  - namespace: default
+  - namespace: ruby-dev
     server: https://kubernetes.default.svc
   sourceRepos:
   - https://github.com/maitymondeep/ruby-app
