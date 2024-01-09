@@ -196,7 +196,7 @@ jobs:
         helm_chart_directory=${{ github.event.repository.name }}/environments/dev
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
-        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/dev-values.yaml"     
+        sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/dev-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
       run: |
