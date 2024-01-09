@@ -11,7 +11,6 @@ appVersion: v0.70.0
 dependencies:
 - condition: crds.enabled
   name: crds
-  repository: ""
   version: 0.0.0
 - condition: kubeStateMetrics.enabled
   name: kube-state-metrics
