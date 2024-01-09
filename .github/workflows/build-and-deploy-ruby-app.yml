@@ -185,22 +185,16 @@ jobs:
     steps:
     - name: Checkout Repository ## Checkout Repo
       uses: actions/checkout@v4
-      with:
-        repository: maitymondeep/gitops-helm-values
-        token: ${{ secrets.PAT_TOKEN }}
-        path: '.github/gitops-helm-values'
 
     - name: Update Image Tag Values ## Replace Image_Tag in helm values file
       run: |
-        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
-        helm_chart_directory=${{ github.event.repository.name }}/environments/dev
+        helm_chart_directory=infrastructure/helm-values/environments/dev
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/dev-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
       run: |
-        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
         git config --global user.name 'Mondeep Maity'
         git config --global user.email 'mondeep.maity2104@gmail.com'
         git commit -am "updating image tag"
@@ -234,22 +228,16 @@ jobs:
     steps:
     - name: Checkout Repository ## Checkout Repo
       uses: actions/checkout@v4
-      with:
-        repository: maitymondeep/gitops-helm-values
-        token: ${{ secrets.PAT_TOKEN }}
-        path: '.github/gitops-helm-values'
 
     - name: Update Image Tag Values ## Replace Image_Tag in helm values file
       run: |
-        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
-        helm_chart_directory=${{ github.event.repository.name }}/environments/qa
+        helm_chart_directory=infrastructure/helm-values/environments/qa
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/qa-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
       run: |
-        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
         git config --global user.name 'Mondeep Maity'
         git config --global user.email 'mondeep.maity2104@gmail.com'
         git commit -am "updating image tag"
@@ -283,22 +271,16 @@ jobs:
     steps:
       - name: Checkout Repository ## Checkout Repo
         uses: actions/checkout@v4
-        with:
-          repository: maitymondeep/gitops-helm-values
-          token: ${{ secrets.PAT_TOKEN }}
-          path: '.github/gitops-helm-values'
   
       - name: Update Image Tag Values ## Replace Image_Tag in helm values file
         run: |
-          cd $GITHUB_WORKSPACE/.github/gitops-helm-values
-          helm_chart_directory=${{ github.event.repository.name }}/environments/preprod
+          helm_chart_directory=infrastructure/helm-values/environments/preprod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
           sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/preprod-values.yaml"     
       
       - name: Commit the changes made ## Commit message to the branch
         run: |
-          cd $GITHUB_WORKSPACE/.github/gitops-helm-values
           git config --global user.name 'Mondeep Maity'
           git config --global user.email 'mondeep.maity2104@gmail.com'
           git commit -am "updating image tag"
@@ -332,22 +314,16 @@ jobs:
     steps:
       - name: Checkout Repository ## Checkout Repo
         uses: actions/checkout@v4
-        with:
-          repository: maitymondeep/gitops-helm-values
-          token: ${{ secrets.PAT_TOKEN }}
-          path: '.github/gitops-helm-values'
   
       - name: Update Image Tag Values ## Replace Image_Tag in helm values file
         run: |
-          cd $GITHUB_WORKSPACE/.github/gitops-helm-values
-          helm_chart_directory=${{ github.event.repository.name }}/environments/prod
+          helm_chart_directory=infrastructure/helm-values/environments/prod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
           sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/prod-values.yaml"     
       
       - name: Commit the changes made ## Commit message to the branch
         run: |
-          cd $GITHUB_WORKSPACE/.github/gitops-helm-values
           git config --global user.name 'Mondeep Maity'
           git config --global user.email 'mondeep.maity2104@gmail.com'
           git commit -am "updating image tag"

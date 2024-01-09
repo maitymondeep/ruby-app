@@ -22,7 +22,7 @@ spec:
       helm:
         valueFiles:
           - values.yaml
-          - $values/helm-values/environments/dev/dev-values.yaml
+          - $values/infrastructure/helm-values/environments/dev/dev-values.yaml
     - repoURL: 'https://github.com/maitymondeep/ruby-app'
       targetRevision: HEAD
       ref: values

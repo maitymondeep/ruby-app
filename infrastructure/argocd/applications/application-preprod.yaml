@@ -22,7 +22,7 @@ spec:
       helm:
         valueFiles:
           - values.yaml
-          - $values/ruby-app/environments/preprod/preprod-values.yaml
-    - repoURL: 'https://github.com/maitymondeep/gitops-helm-values'
+          - $values/infrastructure/helm-values/environments/preprod/preprod-values.yaml
+    - repoURL: 'https://github.com/maitymondeep/ruby-app'
       targetRevision: HEAD
       ref: values
