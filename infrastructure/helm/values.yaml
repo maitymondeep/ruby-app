@@ -1,5 +1,6 @@
 global:
   projectName: ruby
+  env: ""
 
 ################################ Deployment Default Variables ################################
 ## If HPA not enabled it will use this static replica count. Useually we should use HPA for higher env only

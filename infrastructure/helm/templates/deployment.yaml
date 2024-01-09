@@ -33,7 +33,6 @@ spec:
         {{- end }}
       annotations:
         ## This trick will restart the pod incase of any ConfigMap changes
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
         prometheus.io/port: "8080"
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
