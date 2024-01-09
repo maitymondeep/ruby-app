@@ -21,3 +21,6 @@ spec:
     - p, applications, applications, create, *
     - p, applications, applications, update, *
     - p, applications, applications, sync, *
+    - p, projects, get, ruby-app
+    - p, applications, projects, get, ruby-app
+    - p, clusters, get, *

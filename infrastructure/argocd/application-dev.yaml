@@ -2,20 +2,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: ruby-app-dev
-  namespace: default
+  namespace: argocd
 spec:
   project: ruby-app
   source:
     repoURL: https://github.com/maitymondeep/ruby-app
-    path: infrastructure/helm/environments/dev
+    path: infrastructure/helm
     targetRevision: HEAD
     helm:
       valueFiles:
         - values.yaml
         - environments/dev/dev-values.yaml
   destination:
-    namespace: dev
-    name: nonprod
+    namespace: ruby-dev
+    name: in-cluster
   syncPolicy:
     syncOptions:
       - ApplyOutOfSyncOnly=true
