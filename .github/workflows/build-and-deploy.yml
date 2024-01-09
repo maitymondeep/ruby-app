@@ -192,7 +192,7 @@ jobs:
     - name: Commit the changes made ## Commit message to the branch
       run: | 
         git config --global user.name 'Mondeep Maity'
-        git config --global user.email 'mondeep.maity@domain.com'
+        git config --global user.email 'maity.mondeep@outlook.com'
         git commit -am "updating image tag"
         git push
 
@@ -231,7 +231,7 @@ jobs:
     - name: Commit the changes made ## Commit message to the branch
       run: | 
         git config --global user.name 'Mondeep Maity'
-        git config --global user.email 'mondeep.maity@domain.com'
+        git config --global user.email 'maity.mondeep@outlook.com'
         git commit -am "updating image tag"
         git push
 
@@ -270,7 +270,7 @@ jobs:
     - name: Commit the changes made ## Commit message to the branch
       run: | 
         git config --global user.name 'Mondeep Maity'
-        git config --global user.email 'mondeep.maity@domain.com'
+        git config --global user.email 'maity.mondeep@outlook.com'
         git commit -am "updating image tag"
         git push
 
@@ -309,6 +309,6 @@ jobs:
     - name: Commit the changes made ## Commit message to the branch
       run: | 
         git config --global user.name 'Mondeep Maity'
-        git config --global user.email 'mondeep.maity@domain.com'
+        git config --global user.email 'maity.mondeep@outlook.com'
         git commit -am "updating image tag"
         git push
