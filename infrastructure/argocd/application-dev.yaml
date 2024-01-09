@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ruby-app-dev
+  namespace: default
+spec:
+  project: ruby-app
+  source:
+    repoURL: https://github.com/maitymondeep/ruby-app
+    path: infrastructure/helm/environments/dev
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values.yaml
+        - environments/dev/dev-values.yaml
+  destination:
+    namespace: dev
+    name: nonprod
+  syncPolicy:
+    syncOptions:
+      - ApplyOutOfSyncOnly=true
+      - CreateNamespace=true
+    automated:
+      prune: true
+      selfHeal: true

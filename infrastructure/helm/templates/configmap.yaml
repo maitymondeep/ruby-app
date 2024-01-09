@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+  labels:
+    env: {{ .Values.global.env }}
+    product: {{ .Values.global.projectName | lower }}
+    app: {{ .Release.Name }}
+data:
+{{- toYaml .Values.configMap.data | nindent 2 }}

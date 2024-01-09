@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ruby-app
+  namespace: argocd
+spec:
+  description: "My ArgoCD Project"
+  destinations:
+  - namespace: default
+    server: https://kubernetes.default.svc
+  sourceRepos:
+  - https://github.com/maitymondeep/ruby-app
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  roles:
+  - name: developer
+    policies:
+    - p, applications, applications, get, *
+    - p, applications, applications, list, *
+    - p, applications, applications, create, *
+    - p, applications, applications, update, *
+    - p, applications, applications, sync, *

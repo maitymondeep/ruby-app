@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: "1.0.0"
+name: base-helm-chart
+type: application
+version: "1.0.0"
+description: Base helm chart for microservice deployment.
+maintainers:
+- email: mondeep.maity2104@gmail.com
+  name: Mondeep Maity

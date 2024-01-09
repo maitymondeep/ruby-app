@@ -1,0 +1,34 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    env: {{ .Values.global.env }}
+    app: {{ .Release.Name }}
+    product: {{ .Values.global.projectName | lower }}
+  annotations:
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "PUT, GET, POST, DELETE, OPTIONS, PATCH"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 25m
+    {{- if .Values.ingress.extraconfig }}
+    {{- toYaml .Values.ingress.extraconfig | nindent 4 }}
+    {{- end }}
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Release.Name }}.{{ .Values.global.env }}.maersk-digital.net
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: {{ .Values.servicePort | int }}
+  tls:
+    - hosts:
+        - {{ .Release.Name }}.{{ .Values.global.env }}.maersk-digital.net
+      secretName: tls-wildcard-maersk-digital-net

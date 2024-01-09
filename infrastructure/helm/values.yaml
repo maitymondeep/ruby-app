@@ -1,0 +1,59 @@
+global:
+  projectName: ruby
+
+################################ Deployment Default Variables ################################
+## If HPA not enabled it will use this static replica count. Useually we should use HPA for higher env only
+replicaCount: []
+
+## Image Tag
+imageTag: ""
+
+## If extra lables needed at pod level we can add it here at project values file.
+pod:
+  extraLabels: []
+
+## Rolling Update Strategy for Pods
+rollingUpdateStrategy:
+  maxSurge: "50%"
+
+## Pod Spec
+requests:
+  cpu: "75m"
+  memory: "512Mi"
+limits:
+  cpu: "250m"
+  memory: "768Mi"
+
+## Pod HealthCheck
+readinessProbe:
+  path: /healthcheck
+  initialDelaySeconds: 30
+livenessProbe:
+  path: /healthcheck
+  initialDelaySeconds: 30
+
+## Container Port
+containerPort: 80
+
+## Service Port
+servicePort: 8080
+
+################################ HPA Default Variables ################################
+## If you want to enable HPA
+k8sObjectsEnabled:
+  hpa: true
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilization: 100  ##100% of the request limit [e.g for 50m it will be 150m]
+  targetMemoryUtilization: 100 ##100% of the request limit [e.g for 750Mi it will be 750Mi]
+
+################################ ConfigMap Default Variables ################################
+## If any ConigMap Env variable required??
+configMap:
+  data: []
+
+################################ Ingress Default Variables ################################
+## If any extra configs required in your Ingress like timeout etc.??
+ingress: 
+  extraconfig: []

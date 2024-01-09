@@ -1,0 +1,333 @@
+name: 'Build and Deploy Microservice for Telikos Project'
+
+on:
+  workflow_dispatch:
+
+  # pull_request:
+  #   branches:
+  #     - 'develop'
+  #     - 'release/*'
+  #   paths-ignore:
+  #     - 'infrastructure/**'
+
+  # push:
+  #   branches:
+  #     - 'develop'
+  #     - 'feature/*'
+  #     - 'release/*'
+  #     - 'hotfix/*'
+  #   paths-ignore:
+  #     - 'infrastructure/**'
+
+jobs:
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code  ## Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-
+
+      - name: Set up Ruby ## Set-up Ruby in GitHub Runner
+        uses: actions/setup-ruby@v2
+        with:
+          ruby-version: 2.7
+
+      - name: Install dependencies ## Install Dependencies
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Build Application ## Build Ruby application [Not Needed here as it's a simple ruby web server]
+        run: bundle exec rake ## Replcae main.rb with the actual entrypoint to build application
+
+      - name: Run Unit Tests ## Run Unit Test Cases
+        run: bundle exec rspec
+
+      - name: SonarQube Analyser ## This will Ananlyse the code and Push report to SonarQube
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.buildbreaker.skip=false
+
+      - name: SonarQube Quality Gate check ## Quality Gate Check [Break the build if Quality Gate Failed]
+        id: sonarqube_quality_gate_check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_HOST }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+
+      - name: "Publish SonarQube Quality Gate Status" ## Publish Link in GitHub Summary with Sonar Project link
+        if: always()
+        shell: bash
+        run: |
+          sonar_dashboard_url=$(cat .scannerwork/report-task.txt | grep 'dashboardUrl' | sed 's/dashboardUrl=//')"
+          echo "## :microscope: SonarQube Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          if [[ ${{ steps.sonarqube_quality_gate_check.outputs.quality-gate-status }} == 'PASSED' ]]; then
+            echo "### The Quality Gate status is Passed :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### The Quality Gate status is Failed :x:" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "### :point_right: [Click here to see the SonarQube Scan Report]($(sonar_dashboard_url)" >> $GITHUB_STEP_SUMMARY
+
+  component_test:
+    name: 'Component test'
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - name: Checkout code ## Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-
+
+      - name: Set up Ruby ## Install Ruby in GitHub Runner
+        uses: actions/setup-ruby@v2
+        with:
+          ruby-version: 2.7
+
+      - name: Install dependencies ## Install Dependencies
+        run: |
+          gem install bundler
+          bundle install
+
+      - name: Run Component Tests ## Run Component Test to ensure code quality and functionalities
+        run: bundle exec rake component_test
+
+  docker_build_push:
+    name: 'Docker Build and Push'
+    runs-on: ubuntu-latest
+    needs: [ component_test ]
+    steps:
+    - name: Checkout Repository ## Checkout Repository
+      uses: actions/checkout@v3.3.0
+
+    - name: Configure Image Tag
+      id: tag
+      shell: bash
+      run: |
+        docker_image_tag=$(git rev-parse --short "$GITHUB_SHA")
+        echo "image_tag=$docker_image_tag" >> $GITHUB_OUTPUT
+
+    - name: Add metadata for Docker ## Add Metadata
+      id: metadata
+      uses: docker/metadata-action@v4
+      with:
+        images: ghcr.io/maitymondeep/${{ github.event.repository.name }}
+        tags: ${{ steps.tag.outputs.image_tag }}
+        labels: |
+          branch=${{ github.ref_name }}
+
+    - name: Docker build ## Docker Build [only build, not push]
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: "${{ steps.metadata.outputs.tags }}"
+        labels: "${{ steps.metadata.outputs.labels }}"
+
+    - name: Trivy image scan ## Scan vulnerabilities using Trivy
+      shell: bash
+      run : |
+        mkdir trivyanalysis
+        docker run --rm \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $HOME/Library/Caches:/root/.cache/ \
+        -v $PWD/trivyanalysis:/work/
+        aquasec/trivy image \
+        --severity HIGH,CRITICAL \
+        --exit-code 1  --format sarif \
+        --output /work/report-trivy.sarif \
+        --ignore-unfixed $DOCKER_IMAGE
+      env:
+        DOCKER_IMAGE: "ghcr.io/maitymondeep/${{ github.event.repository.name }}:${{ steps.tag.outputs.image_tag }}"
+
+    - name: Trivy Summary ## Post Trivy scan result in GitHub Summary
+      shell: bash
+      run: |
+        echo "## Trivy Scan Results:" >> $GITHUB_STEP_SUMMARY
+        cat ${{ github.workspace}}/trivyanalysis/report-trivy.sarif | jq -r '.runs[].tool.driver.rules[].help.markdown' >> $GITHUB_STEP_SUMMARY
+
+    - name: Log in to the GHCR ## Login in to GHCR
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_REPO_USERNAME }}
+        password: ${{ SECRETS.GHCR_REPO_PASSWORD }}
+
+    - name: Docker push to GHCR ## Docker Push [only from develop/release, feature branches can build but restrict push to save GHCR spcae]
+      if: (startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'release'))
+      shell: bash
+      run: |
+        docker push ghcr.io/maitymondeep/${{ github.event.repository.name }}:${{ steps.tag.outputs.image_tag }}
+
+  dev_env:
+    name: 'DEV'
+    runs-on: ubuntu-latest
+    needs: [ docker_build_push ]
+    environment:
+      name: dev
+    if: startsWith(github.ref_name, 'develop')
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+      run: |
+        helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments
+        new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
+        # Update the values.yaml file with the new image tag
+        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/dev-values.yaml"     
+    
+    - name: Commit the changes made ## Commit message to the branch
+      run: | 
+        git config --global user.name 'Mondeep Maity'
+        git config --global user.email 'mondeep.maity@domain.com'
+        git commit -am "updating image tag"
+        git push
+
+  dev_sanity:
+    name: 'DEV_Sanity'
+    runs-on: ubuntu-latest
+    needs: [ dev_env ]
+    environment:
+      name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+      shell: bash
+      run: echo "Sanity Test needs to be run here"
+
+  qa_env:
+    name: 'QA'
+    runs-on: ubuntu-latest
+    needs: [ docker_build_push ]
+    environment:
+      name: qa ## This env has approval configured with QA Testers
+    if: startsWith(github.ref_name, 'release')
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+      run: |
+        helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments
+        new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
+        # Update the values.yaml file with the new image tag
+        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/qa-values.yaml"        
+    
+    - name: Commit the changes made ## Commit message to the branch
+      run: | 
+        git config --global user.name 'Mondeep Maity'
+        git config --global user.email 'mondeep.maity@domain.com'
+        git commit -am "updating image tag"
+        git push
+
+  qa_sanity:
+    name: 'QA_Sanity'
+    runs-on: ubuntu-latest
+    needs: [ qa_env ]
+    environment:
+      name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+      shell: bash
+      run: echo "Sanity Test needs to be run here"
+
+  preprod_env:
+    name: 'PreProd'
+    runs-on: ubuntu-latest
+    needs: [ qa_sanity ]
+    environment:
+      name: preprod ## This env has approval configured with Performance Testers
+    if: startsWith(github.ref_name, 'release')
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+      run: |
+        helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments
+        new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
+        # Update the values.yaml file with the new image tag
+        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/preprod-values.yaml"        
+    
+    - name: Commit the changes made ## Commit message to the branch
+      run: | 
+        git config --global user.name 'Mondeep Maity'
+        git config --global user.email 'mondeep.maity@domain.com'
+        git commit -am "updating image tag"
+        git push
+
+  preprod_sanity:
+    name: 'PreProd_Sanity'
+    runs-on: ubuntu-latest
+    needs: [ preprod_env ]
+    environment:
+      name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+      shell: bash
+      run: echo "Sanity Test needs to be run here"
+
+  prod_env:
+    name: 'PreProd'
+    runs-on: ubuntu-latest
+    needs: [ preprod_sanity ]
+    environment:
+      name: prod ## This env has approval configured with DevOps Team
+    if: startsWith(github.ref_name, 'release')
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+      run: |
+        helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments
+        new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
+        # Update the values.yaml file with the new image tag
+        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/prod-values.yaml"        
+    
+    - name: Commit the changes made ## Commit message to the branch
+      run: | 
+        git config --global user.name 'Mondeep Maity'
+        git config --global user.email 'mondeep.maity@domain.com'
+        git commit -am "updating image tag"
+        git push
+
+  prod_sanity:
+    name: 'PreProd_Sanity'
+    runs-on: ubuntu-latest
+    needs: [ prod_env ]
+    environment:
+      name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
+    steps:
+    - name: Checkout Repository ## Checkout Repo
+      uses: actions/checkout@v3.3.0
+
+    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+      shell: bash
+      run: echo "Sanity Test needs to be run here"

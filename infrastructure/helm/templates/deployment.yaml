@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    env: {{ .Values.global.env }}
+    product: {{ .Values.global.projectName | lower }}
+    app: {{ .Release.Name }}
+spec:
+  {{- if not .Values.k8sObjectsEnabled.hpa }}
+  replicas: {{ .Values.replicaCount | default 1 }}
+  {{- end }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      env: {{ .Values.global.env }}
+      product: {{ .Values.global.projectName | lower }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.rollingUpdateStrategy.maxSurge | quote }}
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        env: {{ .Values.global.env }}
+        product: {{ .Values.global.projectName | lower }}
+        app: {{ .Release.Name }}
+        {{- if .Values.pod.extraLabels }}
+        {{- toYaml .Values.pod.extraLabels | nindent 8 }}
+        {{- end }}
+      annotations:
+        ## This trick will restart the pod incase of any ConfigMap changes
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+    spec:
+      imagePullSecrets:
+        - name: image-pull-secret
+      hostname: {{ .Release.Name }}
+      volumes:
+      - emptyDir: {}
+        name: tmp-volume
+      containers:
+        - name: {{ .Release.Name }}
+          image: "ghcr.io/maitymondeep/{{ .Release.Name }}:{{ .Values.imageTag }}"
+          volumeMounts:
+          - mountPath: /tmp
+            name: tmp-volume
+          securityContext:
+            runAsUser: 15000
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+            requests:
+              cpu: {{ .Values.requests.cpu | quote }}
+              memory: {{ .Values.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.limits.cpu | quote }}
+              memory: {{ .Values.limits.memory | quote }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path | quote }}
+              port: {{ .Values.containerPort | int }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds | int }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path | quote }}
+              port: {{ .Values.containerPort | int }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds | int }}
+          ports:
+            - containerPort: {{ .Values.containerPort | int }}
+          env:
+            - name: ENV_NAME
+              value: {{ .Values.global.env }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-configmap
