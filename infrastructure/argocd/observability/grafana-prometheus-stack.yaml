@@ -17,7 +17,7 @@ spec:
     namespace: observability
   sources:
     - repoURL: https://github.com/maitymondeep/ruby-app
-      path: infrastructure/observability/grafana-prometheus-stack
+      path: infrastructure/observability/kube-prometheus-stack
       targetRevision: develop
       helm:
         valueFiles:
