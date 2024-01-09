@@ -1,4 +1,4 @@
-name: 'Build and Deploy Microservice for Telikos Project'
+name: 'Build and Deploy service for Ruby Project'
 
 on:
   workflow_dispatch:
@@ -40,45 +40,45 @@ jobs:
         with:
           ruby-version: 2.7
 
-      - name: Install dependencies ## Install Dependencies
-        run: |
-          gem install bundler
-          bundle install
+      # - name: Install dependencies ## Install Dependencies
+      #   run: |
+      #     gem install bundler
+      #     bundle install
 
-      - name: Build Application ## Build Ruby application [Not Needed here as it's a simple ruby web server]
-        run: bundle exec rake ## Replcae main.rb with the actual entrypoint to build application
+      # - name: Build Application ## Build Ruby application [Not Needed here as it's a simple ruby web server]
+      #   run: bundle exec rake ## Replcae main.rb with the actual entrypoint to build application
 
-      - name: Run Unit Tests ## Run Unit Test Cases
-        run: bundle exec rspec
+      # - name: Run Unit Tests ## Run Unit Test Cases
+      #   run: bundle exec rspec
 
-      - name: SonarQube Analyser ## This will Ananlyse the code and Push report to SonarQube
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.buildbreaker.skip=false
+      # - name: SonarQube Analyser ## This will Ananlyse the code and Push report to SonarQube
+      #   uses: sonarsource/sonarqube-scan-action@master
+      #   env:
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   with:
+      #     args: >
+      #       -Dsonar.buildbreaker.skip=false
 
-      - name: SonarQube Quality Gate check ## Quality Gate Check [Break the build if Quality Gate Failed]
-        id: sonarqube_quality_gate_check
-        uses: sonarsource/sonarqube-quality-gate-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_HOST }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+      # - name: SonarQube Quality Gate check ## Quality Gate Check [Break the build if Quality Gate Failed]
+      #   id: sonarqube_quality_gate_check
+      #   uses: sonarsource/sonarqube-quality-gate-action@master
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_HOST }}
+      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
 
-      - name: "Publish SonarQube Quality Gate Status" ## Publish Link in GitHub Summary with Sonar Project link
-        if: always()
-        shell: bash
-        run: |
-          sonar_dashboard_url=$(cat .scannerwork/report-task.txt | grep 'dashboardUrl' | sed 's/dashboardUrl=//')"
-          echo "## :microscope: SonarQube Quality Gate Results" >> $GITHUB_STEP_SUMMARY
-          if [[ ${{ steps.sonarqube_quality_gate_check.outputs.quality-gate-status }} == 'PASSED' ]]; then
-            echo "### The Quality Gate status is Passed :white_check_mark:" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "### The Quality Gate status is Failed :x:" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "### :point_right: [Click here to see the SonarQube Scan Report]($(sonar_dashboard_url)" >> $GITHUB_STEP_SUMMARY
+      # - name: "Publish SonarQube Quality Gate Status" ## Publish Link in GitHub Summary with Sonar Project link
+      #   if: always()
+      #   shell: bash
+      #   run: |
+      #     sonar_dashboard_url=$(cat .scannerwork/report-task.txt | grep 'dashboardUrl' | sed 's/dashboardUrl=//')"
+      #     echo "## :microscope: SonarQube Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+      #     if [[ ${{ steps.sonarqube_quality_gate_check.outputs.quality-gate-status }} == 'PASSED' ]]; then
+      #       echo "### The Quality Gate status is Passed :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+      #     else
+      #       echo "### The Quality Gate status is Failed :x:" >> $GITHUB_STEP_SUMMARY
+      #     fi
+      #     echo "### :point_right: [Click here to see the SonarQube Scan Report]($(sonar_dashboard_url)" >> $GITHUB_STEP_SUMMARY
 
   component_test:
     name: 'Component test'
@@ -88,26 +88,26 @@ jobs:
       - name: Checkout code ## Checkout Code
         uses: actions/checkout@v2
 
-      - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ruby-${{ runner.os }}-
+      # - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: vendor/bundle
+      #     key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
+      #     restore-keys: |
+      #       ruby-${{ runner.os }}-
 
-      - name: Set up Ruby ## Install Ruby in GitHub Runner
-        uses: actions/setup-ruby@v2
-        with:
-          ruby-version: 2.7
+      # - name: Set up Ruby ## Install Ruby in GitHub Runner
+      #   uses: actions/setup-ruby@v2
+      #   with:
+      #     ruby-version: 2.7
 
-      - name: Install dependencies ## Install Dependencies
-        run: |
-          gem install bundler
-          bundle install
+      # - name: Install dependencies ## Install Dependencies
+      #   run: |
+      #     gem install bundler
+      #     bundle install
 
-      - name: Run Component Tests ## Run Component Test to ensure code quality and functionalities
-        run: bundle exec rake component_test
+      # - name: Run Component Tests ## Run Component Test to ensure code quality and functionalities
+      #   run: bundle exec rake component_test
 
   docker_build_push:
     name: 'Docker Build and Push'
