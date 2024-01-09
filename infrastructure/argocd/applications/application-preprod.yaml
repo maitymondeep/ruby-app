@@ -17,7 +17,7 @@ spec:
     namespace: ruby-preprod
   sources:
     - repoURL: https://github.com/maitymondeep/ruby-app
-      path: infrastructure/helm
+      path: infrastructure/helm-chart
       targetRevision: develop
       helm:
         valueFiles:

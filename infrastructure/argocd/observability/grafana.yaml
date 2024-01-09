@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ruby-app
+  name: grafana
   namespace: argocd
 spec:
   project: ruby-app
@@ -14,15 +14,12 @@ spec:
       - ApplyOutOfSyncOnly=true
   destination:
     server: https://kubernetes.default.svc
-    namespace: ruby-prod
+    namespace: observability
   sources:
     - repoURL: https://github.com/maitymondeep/ruby-app
-      path: infrastructure/helm-chart
+      path: infrastructure/observability/grafana
       targetRevision: develop
       helm:
         valueFiles:
           - values.yaml
-          - $values/infrastructure/helm-values/environments/prod/prod-values.yaml
-    - repoURL: 'https://github.com/maitymondeep/ruby-app'
-      targetRevision: HEAD
-      ref: values
+
