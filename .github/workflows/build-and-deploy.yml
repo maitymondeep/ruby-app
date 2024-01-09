@@ -192,7 +192,7 @@ jobs:
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         # Update the values.yaml file with the new image tag
-        sed -i 's/imageTag: ""/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/dev-values.yaml"     
+        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/dev-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
       run: | 
@@ -235,7 +235,7 @@ jobs:
         helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments/qa
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         # Update the values.yaml file with the new image tag
-        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/qa-values.yaml"        
+        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/qa-values.yaml"        
     
     - name: Commit the changes made ## Commit message to the branch
       run: | 
@@ -278,7 +278,7 @@ jobs:
         helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments/preprod
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         # Update the values.yaml file with the new image tag
-        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/preprod-values.yaml"        
+        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/preprod-values.yaml"        
     
     - name: Commit the changes made ## Commit message to the branch
       run: | 
@@ -321,7 +321,7 @@ jobs:
         helm_chart_directory=$GITHUB_WORKSPACE/infrastructure/helm/environments
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         # Update the values.yaml file with the new image tag
-        sed -i 's/imageTag: ""/imageTag: $new_image_tag/' "$helm_chart_directory/prod-values.yaml"        
+        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/prod-values.yaml"        
     
     - name: Commit the changes made ## Commit message to the branch
       run: | 
