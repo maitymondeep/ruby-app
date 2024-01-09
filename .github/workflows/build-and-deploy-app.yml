@@ -188,7 +188,7 @@ jobs:
       with:
         repository: maitymondeep/gitops-helm-values
         token: ${{ secrets.PAT_TOKEN }}
-        path: '/gitops-helm-values'
+        path: '.github/gitops-helm-values'
 
     - name: Update Image Tag Values ## Replace Image_Tag in helm values file
       run: |
