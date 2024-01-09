@@ -3,12 +3,12 @@ name: 'Build and Deploy service for Ruby Project'
 on:
   workflow_dispatch:
 
-  # pull_request:
-  #   branches:
-  #     - 'develop'
-  #     - 'release/*'
-  #   paths-ignore:
-  #     - 'infrastructure/**'
+  pull_request:
+    branches:
+      - 'develop'
+      - 'release/*'
+    paths-ignore:
+      - 'infrastructure/**'
 
   push:
     branches:
@@ -245,7 +245,7 @@ jobs:
         helm_chart_directory=${{ github.event.repository.name }}/environments/qa
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
-        sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/qa-values.yaml"     
+        sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/qa-values.yaml"     
     
     - name: Commit the changes made ## Commit message to the branch
       run: |
@@ -294,7 +294,7 @@ jobs:
           helm_chart_directory=${{ github.event.repository.name }}/environments/preprod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
-          sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/preprod-values.yaml"     
+          sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/preprod-values.yaml"     
       
       - name: Commit the changes made ## Commit message to the branch
         run: |
@@ -343,7 +343,7 @@ jobs:
           helm_chart_directory=${{ github.event.repository.name }}/environments/prod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
-          sed -i 's/imageTag: "[^"]*"/imageTag: '"$new_image_tag"'/' "$helm_chart_directory/prod-values.yaml"     
+          sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/prod-values.yaml"     
       
       - name: Commit the changes made ## Commit message to the branch
         run: |
