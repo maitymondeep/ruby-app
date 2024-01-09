@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ruby-app-dev
+  name: ruby-app
   namespace: argocd
 spec:
   project: ruby-app
