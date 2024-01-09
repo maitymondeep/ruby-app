@@ -88,18 +88,18 @@ jobs:
       - name: Checkout code ## Checkout Code
         uses: actions/checkout@v2
 
-      # - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: vendor/bundle
-      #     key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
-      #     restore-keys: |
-      #       ruby-${{ runner.os }}-
+      - name: Cache Ruby dependencies ## Enabled Cache, to reduce download dependency time for next run
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ruby-${{ runner.os }}-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ruby-${{ runner.os }}-
 
-      # - name: Set up Ruby ## Install Ruby in GitHub Runner
-      #   uses: actions/setup-ruby@v1
-      #   with:
-      #     ruby-version: 2.6
+      - name: Set up Ruby ## Install Ruby in GitHub Runner
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
 
       # - name: Install dependencies ## Install Dependencies
       #   run: |
@@ -146,14 +146,14 @@ jobs:
       run : |
         mkdir trivyanalysis
         docker run --rm \
-        -v /var/run/docker.sock:/var/run/docker.sock \
-        -v $HOME/Library/Caches:/root/.cache/ \
-        -v $PWD/trivyanalysis:/work/
-        aquasec/trivy image \
-        --severity HIGH,CRITICAL \
-        --exit-code 1  --format sarif \
-        --output /work/report-trivy.sarif \
-        --ignore-unfixed $DOCKER_IMAGE
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v $HOME/Library/Caches:/root/.cache/ \
+          -v $PWD/trivyanalysis:/work/
+          aquasec/trivy image \
+          --severity HIGH,CRITICAL \
+          --exit-code 1  --format sarif \
+          --output /work/report-trivy.sarif \
+          --ignore-unfixed $DOCKER_IMAGE
       env:
         DOCKER_IMAGE: "ghcr.io/maitymondeep/${{ github.event.repository.name }}:${{ steps.tag.outputs.image_tag }}"
 
