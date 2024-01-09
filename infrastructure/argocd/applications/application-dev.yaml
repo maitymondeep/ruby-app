@@ -17,12 +17,12 @@ spec:
     namespace: ruby-dev
   sources:
     - repoURL: https://github.com/maitymondeep/ruby-app
-      path: infrastructure/helm
+      path: infrastructure/helm-chart
       targetRevision: develop
       helm:
         valueFiles:
           - values.yaml
-          - $values/ruby-app/environments/dev/dev-values.yaml
-    - repoURL: 'https://github.com/maitymondeep/gitops-helm-values'
+          - $values/helm-values/environments/dev/dev-values.yaml
+    - repoURL: 'https://github.com/maitymondeep/ruby-app'
       targetRevision: HEAD
       ref: values
