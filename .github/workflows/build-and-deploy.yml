@@ -177,6 +177,10 @@ jobs:
     needs: [ docker_build_push ]
     environment:
       name: dev
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
     if: startsWith(github.ref_name, 'develop')
     steps:
     - name: Checkout Repository ## Checkout Repo
@@ -216,6 +220,10 @@ jobs:
     needs: [ docker_build_push ]
     environment:
       name: qa ## This env has approval configured with QA Testers
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
     - name: Checkout Repository ## Checkout Repo
@@ -255,6 +263,10 @@ jobs:
     needs: [ qa_sanity ]
     environment:
       name: preprod ## This env has approval configured with Performance Testers
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
     - name: Checkout Repository ## Checkout Repo
@@ -294,6 +306,10 @@ jobs:
     needs: [ preprod_sanity ]
     environment:
       name: prod ## This env has approval configured with DevOps Team
+    permissions:
+      actions: write
+      contents: write
+      deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
     - name: Checkout Repository ## Checkout Repo
