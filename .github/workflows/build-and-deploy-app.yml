@@ -192,7 +192,7 @@ jobs:
 
     - name: Update Image Tag Values ## Replace Image_Tag in helm values file
       run: |
-        cd $GITHUB_WORKSPACE/gitops-helm-values
+        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
         helm_chart_directory=infrastructure/helm/environments/dev
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
@@ -201,7 +201,7 @@ jobs:
     
     - name: Commit the changes made ## Commit message to the branch
       run: |
-        cd $GITHUB_WORKSPACE/gitops-helm-values
+        cd $GITHUB_WORKSPACE/.github/gitops-helm-values
         git config --global user.name 'Mondeep Maity'
         git config --global user.email 'mondeep.maity2104@gmail.com'
         git commit -am "updating image tag"
