@@ -22,4 +22,4 @@ autoscaling:
 #+++++++++++++++++++++++++++++++++Developer Use++++++++++++++++++++++++++++++++++#
 configMap:
   data:
-    non-sensitive-key: non-sensitive-value
+    non-sensitive-key: "non-sensitive-value"
