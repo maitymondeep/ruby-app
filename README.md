@@ -139,7 +139,7 @@ Below are the detailed steps for a specific environment, which will be the same 
 ![](./images/pipeline_flow.png)
 
 ### Part 2 - Manifests
-I've configured a helm chart that will deploy the application to the Kubernetes cluster via ArgoCD deployment. I've tried to cover best security practices, reliability and availability, and mentioned some key highlights below. [Click here to see the Helm Chart](./infrastructure/helm-chart/templates/)
+I've configured a helm chart that will deploy the application to the Kubernetes cluster via ArgoCD deployment. I've tried to cover best security practices, reliability and availability, and mentioned some key highlights below. [Click here to see manifest files in the Helm Chart](./infrastructure/helm-chart/templates/)
 
 - Highly available and load-balanced
     - I have configured `HPA`. So, there minimum pod count is set as `2` or the static replica count minimum as `2` with disabled HPA.
@@ -203,7 +203,6 @@ livenessProbe:
         7. Auto-scaling
         8. Configuration Management
         9. Pod Quotas and Limit Ranges
-    - [Click here to see full deployment file in helm chart](./infrastructure/helm-chart/templates/deployment.yaml)
 
 - Ensure zero downtime
     - I have added a rolling update in the deployment file to keep `maxUnavailable` as `0`, and `maxSurge` as default `50%`.
@@ -237,7 +236,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: {{ .Release.Name }}.{{ .Values.global.env }}.maersk-digital.net
+    - host: {{ .Release.Name }}.{{ .Values.global.env }}.domain.com
       http:
         paths:
           - path: /
@@ -249,8 +248,8 @@ spec:
                   number: {{ .Values.servicePort | int }}
   tls:
     - hosts:
-        - {{ .Release.Name }}.{{ .Values.global.env }}.maersk-digital.net
-      secretName: tls-wildcard-maersk-digital-net
+        - {{ .Release.Name }}.{{ .Values.global.env }}.domain.com
+      secretName: tls-wildcard-certificate-secret
 ```
 
 ## <u>Module 3 - Improvements</u>
