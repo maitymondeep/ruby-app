@@ -269,6 +269,8 @@ As part of improvements of the application, I have modified the application code
     - This feature will create pull request incase of any new version available for dependencies and github action versions. Which is very useful in this case to get up-to-date with latest versions in-terms of security best practices.
 - Added CodeQL
     - This feature will run CodeQL checks and share security alerts in security tab.
+- Added CodeOwner
+    - This feature will add codeowner to the repo which will help to review pull request properly with proper owner.
 - Observability
     - Observability is very important for an application in terms to logging, metrics, alerting and many more. which can help a project in multiple ways. Here I've configured a basic grafana dashbaord with Prometheus and Loki, where we can visualise the data and metrics to analyse the issues, application performance and many more. I have configured it as basic level, but this can be configured in more standard way for a bigger project. Here are some references.
         - Grafana:
