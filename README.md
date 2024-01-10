@@ -112,7 +112,7 @@ Since our goal is to deploy the application to the Kubernetes cluster, I would l
 #### Pre-Requisite Steps:
 1. To create a project in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/project/argo-project.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
 
-2. To create an application in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/application/application-dev.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
+2. To create an application in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/applications/application-dev.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
 
 Now we are ready from the ArgoCD side. once any commit is made to a specific helm values file for a specific environment, argoCD will trigger the application sync with GitHub and initiate a deployment in the Kubernetes cluster.
 
