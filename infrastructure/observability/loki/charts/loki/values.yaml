@@ -207,7 +207,7 @@ containerSecurityContext:
 
 service:
   type: NodePort
-  nodePort: 3100
+  nodePort: 32467
   port: 3100
   annotations: {}
   labels: {}
