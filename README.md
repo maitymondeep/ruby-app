@@ -281,18 +281,18 @@ As part of improvements to the application, I have modified the application code
             - Helm Chart: [Please Click here to see Prometheus helm chart](./infrastructure/observability/prometheus/)
 
 ### **<u>Here are some snapshots after implementing the above changes:</u>**
-#### <u>ArgoCD Dashboard</u>
+#### <u>ArgoCD Dashboard:</u>
 ![](./images/argocd_dashboard.png)
 
-#### <u>Ruby-App Application</u>
+#### <u>Ruby-App Application:</u>
 ![](./images/ruby_app.png)
 
-#### <u>Kubernetes Resources/Objects</u>
+#### <u>Kubernetes Resources/Objects:</u>
 ![](./images/K8s_objects.png)
 
-#### <u>Ruby Application</u>
+#### <u>Ruby Application:</u>
 ![](./images/Ruby_Application_response.png)
 ![](./images/Ruby_Health_Check.png)
 
-#### <u>Grafana Dahsboard</u>
+#### <u>Grafana Dahsboard:</u>
 ![](./images/grafana_sample_dahsboard.png)
