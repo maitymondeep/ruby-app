@@ -137,7 +137,7 @@ Below are the detailed step for a specific environment, which will be same acros
     - This step has a 15 mins of `wait_timer` to give ample amount of time to the pods before the test start. This step run some basic test to make sure all functionalities are working fine after deployment.
 
 #### <u>Here is a sneakpeak of the entire Pipeline flow.</u>
-![](./images/pipeline_flow.jpeg)
+![](./images/pipeline_flow.png)
 
 ### Part 2 - Manifests
 I've configured a helm chart which will deploy application to kubernetes cluster via ArgoCD deployment. I've tried to cover best security practices, reliability and availability, mentioned some key highlights as below. [Click here to see the Helm Chart](./infrastructure/helm-chart/templates/)
@@ -267,6 +267,8 @@ As part of improvements of the application, I have modified the application code
     - Trivy will scan the image and break the build incase of any vulnerabilities found.
 - Added dependabot
     - This feature will create pull request incase of any new version available for dependencies and github action versions. Which is very useful in this case to get up-to-date with latest versions in-terms of security best practices.
+- Added CodeQL
+    - This feature will run CodeQL checks and share security alerts in security tab.
 - Observability
     - Observability is very important for an application in terms to logging, metrics, alerting and many more. which can help a project in multiple ways. Here I've configured a basic grafana dashbaord with Prometheus and Loki, where we can visualise the data and metrics to analyse the issues, application performance and many more. I have configured it as basic level, but this can be configured in more standard way for a bigger project. Here are some references.
         - Grafana:
@@ -280,11 +282,19 @@ As part of improvements of the application, I have modified the application code
             - Helm Chart: [Please Click here to see Prometheus helm chart](./infrastructure/observability/prometheus/)
 
 
-### Here are some snapshot after implement the changes.
+### <u>Here are some snapshot after implement the above changes:</u>
 #### <u>ArgoCD Dashboard</u>
-![](./images/argocd_board.png)
+![](./images/argocd_dashboard.png)
 
 #### <u>Ruby-App Application</u>
 ![](./images/ruby_app.png)
 
+#### <u>Kubernetes Resources/Objects</u>
+![](./images/K8s_objects.png)
+
 #### <u>Rube Application UI</u>
+![](./images/Ruby_Application_response.png)
+![](./images/Ruby_Health_Check.png)
+
+#### <u>Grafana Dahsboard</u>
+![](./images/grafana_sample_dahsboard.png)
