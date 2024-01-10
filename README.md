@@ -104,8 +104,9 @@ Since I will be deploying the application to a local Kubernetes cluster, we need
 
 ### Deploy Application:
 Since our goal is to deploy the application to the Kubernetes cluster, I would like to deploy the application using the helm chart via ArgoCD deployment. Assuming the ArgoCD API-server is exposed to the internet, So we will be creating a project in ArgoCD and an app that will configured with GitHub and pull the latest changes when there are any commits in the mentioned directory. Here are a few path references.
-1. [Path for Helm Chart](./infrastructure/helm-chart/templates/)
-2. [Path of ArgoCD application config](./infrastructure/argocd/)
+1. [Path for Helm Chart](./infrastructure/helm-chart/)
+2. [Path of ArgoCD application config](./infrastructure/argocd/applications)
+3. [Path of ArgoCD project config](./infrastructure/argocd/project)
 3. [Path of customized halm values path for the specific environment](./infrastructure/helm-values/environments/)
 
 #### Pre-Requisite Steps:
