@@ -280,7 +280,7 @@ As part of improvements to the application, I have modified the application code
             - ArgoCD Application: [Please Click here to navigate to the Prometheus application file](./infrastructure/argocd/observability/prometheus.yaml)
             - Helm Chart: [Please Click here to see Prometheus helm chart](./infrastructure/observability/prometheus/)
 
-### <u>Here are some snapshots after implementing the above changes:</u>
+### **<u>Here are some snapshots after implementing the above changes:</u>**
 #### <u>ArgoCD Dashboard</u>
 ![](./images/argocd_dashboard.png)
 
