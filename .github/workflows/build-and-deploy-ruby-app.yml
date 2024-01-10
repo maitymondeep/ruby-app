@@ -39,46 +39,51 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.7
+      ## Install Dependencies [Not needed for this application]
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundle install
 
-      # - name: Install dependencies ## Install Dependencies
-      #   run: |
-      #     gem install bundler
-      #     bundle install
+      ## Build Ruby application [Not Needed here as it's a simple ruby web server]
+      - name: Build Application 
+        run: bundle exec rake
 
-      # - name: Build Application ## Build Ruby application [Not Needed here as it's a simple ruby web server]
-      #   run: bundle exec rake ## Replcae main.rb with the actual entrypoint to build application
+      ## Run Unit Test Cases [Not needed for this application]
+      - name: Run Unit Tests
+        run: bundle exec rspec
+      
+      ## This will Ananlyse the code and Push report to SonarQube
+      - name: SonarQube Analyser 
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.buildbreaker.skip=false
 
-      # - name: Run Unit Tests ## Run Unit Test Cases
-      #   run: bundle exec rspec
+      ## Quality Gate Check [Break the build if Quality Gate Failed]
+      - name: SonarQube Quality Gate check
+        id: sonarqube_quality_gate_check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_HOST }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
 
-      # - name: SonarQube Analyser ## This will Ananlyse the code and Push report to SonarQube
-      #   uses: sonarsource/sonarqube-scan-action@master
-      #   env:
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   with:
-      #     args: >
-      #       -Dsonar.buildbreaker.skip=false
-
-      # - name: SonarQube Quality Gate check ## Quality Gate Check [Break the build if Quality Gate Failed]
-      #   id: sonarqube_quality_gate_check
-      #   uses: sonarsource/sonarqube-quality-gate-action@master
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_HOST }}
-      #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST }}
-
-      # - name: "Publish SonarQube Quality Gate Status" ## Publish Link in GitHub Summary with Sonar Project link
-      #   if: always()
-      #   shell: bash
-      #   run: |
-      #     sonar_dashboard_url=$(cat .scannerwork/report-task.txt | grep 'dashboardUrl' | sed 's/dashboardUrl=//')"
-      #     echo "## :microscope: SonarQube Quality Gate Results" >> $GITHUB_STEP_SUMMARY
-      #     if [[ ${{ steps.sonarqube_quality_gate_check.outputs.quality-gate-status }} == 'PASSED' ]]; then
-      #       echo "### The Quality Gate status is Passed :white_check_mark:" >> $GITHUB_STEP_SUMMARY
-      #     else
-      #       echo "### The Quality Gate status is Failed :x:" >> $GITHUB_STEP_SUMMARY
-      #     fi
-      #     echo "### :point_right: [Click here to see the SonarQube Scan Report]($(sonar_dashboard_url)" >> $GITHUB_STEP_SUMMARY
+      ## Publish Link in GitHub Summary with Sonar Project link
+      - name: "Publish SonarQube Quality Gate Status"
+        if: always()
+        shell: bash
+        run: |
+          sonar_dashboard_url=$(cat .scannerwork/report-task.txt | grep 'dashboardUrl' | sed 's/dashboardUrl=//')"
+          echo "## :microscope: SonarQube Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          if [[ ${{ steps.sonarqube_quality_gate_check.outputs.quality-gate-status }} == 'PASSED' ]]; then
+            echo "### The Quality Gate status is Passed :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### The Quality Gate status is Failed :x:" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "### :point_right: [Click here to see the SonarQube Scan Report]($(sonar_dashboard_url)" >> $GITHUB_STEP_SUMMARY
 
   component_test:
     name: 'Component test'
@@ -101,13 +106,15 @@ jobs:
         with:
           ruby-version: 2.7
 
-      # - name: Install dependencies ## Install Dependencies
-      #   run: |
-      #     gem install bundler
-      #     bundle install
+      ## Install Dependencies [Not needed for this application]
+      - name: Install dependencies 
+        run: |
+          gem install bundler
+          bundle install
 
-      # - name: Run Component Tests ## Run Component Test to ensure code quality and functionalities
-      #   run: bundle exec rake component_test
+      ## Run Component Test to ensure code quality and functionalities [Not needed for this application]
+      - name: Run Component Tests
+        run: bundle exec rake component_test
 
   docker_build_push:
     name: 'Docker Build and Push'
@@ -124,7 +131,8 @@ jobs:
         docker_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image_tag=$docker_image_tag" >> $GITHUB_OUTPUT
 
-    - name: Add metadata for Docker ## Add Metadata
+    ## Add Metadata
+    - name: Add metadata for Docker
       id: metadata
       uses: docker/metadata-action@v4
       with:
@@ -133,7 +141,8 @@ jobs:
         labels: |
           branch=${{ github.ref_name }}
 
-    - name: Docker build ## Docker Build [only build, not push]
+    ## Docker Build [only build, not push]
+    - name: Docker build
       uses: docker/build-push-action@v4
       with:
         context: .
@@ -141,6 +150,7 @@ jobs:
         tags: "${{ steps.metadata.outputs.tags }}"
         labels: "${{ steps.metadata.outputs.labels }}"
 
+    ## Scan image using Trivy [Break the build in case of any vulnerabilities found]
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -150,14 +160,17 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+        exit-code: '1'
 
-    # - name: Upload Trivy scan results to GitHub Security tab
-    #   uses: github/codeql-action/upload-sarif@v2
-    #   if: always()
-    #   with:
-    #     sarif_file: 'trivy-results.sarif'
+    ## Publish Scan result to Security Tab
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
 
-    - name: Log in to the GHCR ## Login in to GHCR
+    ## Login in to GHCR
+    - name: Log in to the GHCR
       uses: docker/login-action@v2
       if: (startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'release'))
       with:
@@ -165,7 +178,8 @@ jobs:
         username: ${{ secrets.GHCR_REPO_USERNAME }}
         password: ${{ SECRETS.GHCR_REPO_PASSWORD }}
 
-    - name: Docker push to GHCR ## Docker Push [only from develop/release, feature branches can build but restrict push to save GHCR spcae]
+    ## Docker Push [only from develop/release, feature branches can build the code but restrict to push image. this will save GHCR spcae and cost as well]
+    - name: Docker push to GHCR
       if: (startsWith(github.ref_name, 'develop') || startsWith(github.ref_name, 'release'))
       shell: bash
       run: |
@@ -183,17 +197,19 @@ jobs:
       deployments: write
     if: startsWith(github.ref_name, 'develop')
     steps:
-    - name: Checkout Repository ## Checkout Repo
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+    ## Replace Image_Tag in helm values file
+    - name: Update Image Tag Values
       run: |
         helm_chart_directory=infrastructure/helm-values/environments/dev
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/dev-values.yaml"     
     
-    - name: Commit the changes made ## Commit message to the branch
+    ## Commit message to the branch
+    - name: Commit the changes made
       run: |
         git config --global user.name 'Mondeep Maity'
         git config --global user.email 'mondeep.maity2104@gmail.com'
@@ -207,10 +223,11 @@ jobs:
     environment:
       name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
     steps:
-    - name: Checkout Repository ## Checkout Repo
-      uses: actions/checkout@v3.3.0
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+    ## Sanity Check to make sure functionality working fine[if possible]
+    - name: Run Sanity Scripts
       shell: bash
       run: echo "Sanity Test needs to be run here"
 
@@ -226,17 +243,19 @@ jobs:
       deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
-    - name: Checkout Repository ## Checkout Repo
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
-    - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+    ## Replace Image_Tag in helm values file
+    - name: Update Image Tag Values
       run: |
         helm_chart_directory=infrastructure/helm-values/environments/qa
         new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
         echo "image tag: $new_image_tag"
         sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/qa-values.yaml"     
     
-    - name: Commit the changes made ## Commit message to the branch
+    ## Commit message to the branch
+    - name: Commit the changes made
       run: |
         git config --global user.name 'Mondeep Maity'
         git config --global user.email 'mondeep.maity2104@gmail.com'
@@ -250,10 +269,11 @@ jobs:
     environment:
       name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
     steps:
-    - name: Checkout Repository ## Checkout Repo
-      uses: actions/checkout@v3.3.0
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+    ## Sanity Check to make sure functionality working fine[if possible]
+    - name: Run Sanity Scripts
       shell: bash
       run: echo "Sanity Test needs to be run here"
 
@@ -269,17 +289,19 @@ jobs:
       deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
-      - name: Checkout Repository ## Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
   
-      - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+      ## Replace Image_Tag in helm values file
+      - name: Update Image Tag Values
         run: |
           helm_chart_directory=infrastructure/helm-values/environments/preprod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
           sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/preprod-values.yaml"     
       
-      - name: Commit the changes made ## Commit message to the branch
+      ## Commit message to the branch
+      - name: Commit the changes made
         run: |
           git config --global user.name 'Mondeep Maity'
           git config --global user.email 'mondeep.maity2104@gmail.com'
@@ -293,10 +315,11 @@ jobs:
     environment:
       name: sanity ## This env has 15 mins sleep time[to get pods ready] before sanity run
     steps:
-    - name: Checkout Repository ## Checkout Repo
-      uses: actions/checkout@v3.3.0
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-    - name: Run Sanity Scripts ## Sanity Check to make sure functionality working fine[if possible]
+    ## Sanity Check to make sure functionality working fine[if possible]
+    - name: Run Sanity Scripts
       shell: bash
       run: echo "Sanity Test needs to be run here"
 
@@ -312,17 +335,19 @@ jobs:
       deployments: write
     if: startsWith(github.ref_name, 'release')
     steps:
-      - name: Checkout Repository ## Checkout Repo
+      - name: Checkout Repository
         uses: actions/checkout@v4
-  
-      - name: Update Image Tag Values ## Replace Image_Tag in helm values file
+
+      ## Replace Image_Tag in helm values file
+      - name: Update Image Tag Values
         run: |
           helm_chart_directory=infrastructure/helm-values/environments/prod
           new_image_tag=$(git rev-parse --short "$GITHUB_SHA")
           echo "image tag: $new_image_tag"
-          sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/prod-values.yaml"     
-      
-      - name: Commit the changes made ## Commit message to the branch
+          sed -i 's/imageTag: "[^"]*"/imageTag: "'"$new_image_tag"'"/' "$helm_chart_directory/prod-values.yaml"
+          
+      ## Commit message to the branch
+      - name: Commit the changes made
         run: |
           git config --global user.name 'Mondeep Maity'
           git config --global user.email 'mondeep.maity2104@gmail.com'
