@@ -110,10 +110,9 @@ Since our goal is to deploy the application to the Kubernetes cluster, I would l
 3. [Path of customized halm values path for the specific environment](./infrastructure/helm-values/environments/)
 
 #### Pre-Requisite Steps:
-1. To create a project in the ArgoCD server we can create via UI or run argo [manifest file](./infrastructure/argocd/argo-project.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
-- [Click here to see ArgoCD Project config](./infrastructure/argocd/argo-project.yaml)
-2. To create an application in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/application-dev.yaml) file as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
-- [Click here to see a sample application config](./infrastructure/argocd/application-dev.yaml)
+1. To create a project in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/project/argo-project.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
+
+2. To create an application in the ArgoCD server we can create via UI manually or run the [manifest file](./infrastructure/argocd/application/application-dev.yaml) as well. This is a one-time activity, I've kept the files in the repo so it is under version control.
 
 Now we are ready from the ArgoCD side. once any commit is made to a specific helm values file for a specific environment, argoCD will trigger the application sync with GitHub and initiate a deployment in the Kubernetes cluster.
 
