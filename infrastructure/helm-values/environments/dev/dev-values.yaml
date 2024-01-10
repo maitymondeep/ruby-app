@@ -14,7 +14,7 @@ livenessProbe:
 
 ## If you want to enable HPA
 k8sObjectsEnabled:
-  hpa: false ## Disabled HPA in Dev env to save cost, enabled QA --> Prod
+  hpa: false ## Disabled HPA in Dev env which can be used for development only and can save cost, enabled HPA in [QA --> Prod]
 
 replicaCount: 1
 

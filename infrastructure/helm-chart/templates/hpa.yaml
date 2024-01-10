@@ -1,3 +1,4 @@
+{{- if .Values.k8sObjectsEnabled.hpa }}
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -30,3 +31,4 @@ spec:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetMemoryUtilization }}
     {{- end }}
+{{- end }}

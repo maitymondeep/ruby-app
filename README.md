@@ -126,7 +126,7 @@ Below are the detailed step for a specific environment, which will be same acros
 - Checkout Code:
     - Checkout the repo to GitHub runner.
 - Update Image Tag Values:
-    - This step will update the file in `/infrastructure/helm/environments/{env-name}/{env-name}-values.yaml` with updated image tag. I have used shorter version od commit id as image tag.
+    - This step will update the file in `/infrastructure/helm-values/environments/{env-name}/{env-name}-values.yaml` with updated image tag. I have used shorter version od commit id as image tag.
 - Commit the changes made:
     - Once the file is updated, it will commit to the repo.
 
@@ -136,8 +136,11 @@ Below are the detailed step for a specific environment, which will be same acros
 - Run Sanity Test:
     - This step has a 15 mins of `wait_timer` to give ample amount of time to the pods before the test start. This step run some basic test to make sure all functionalities are working fine after deployment.
 
+#### <u>Here is a sneakpeak of the entire Pipeline flow.</u>
+![](./images/pipeline_flow.jpeg)
+
 ### Part 2 - Manifests
-I've configured a helm chart which will deploy application to kubernetes cluster. Please find the below details which covered important aspects. [Path for Helm Chart](./infrastructure/helm/templates/)
+I've configured a helm chart which will deploy application to kubernetes cluster via ArgoCD deployment. I've tried to cover best security practices, reliability and availability, mentioned some key highlights as below. [Click here to see the Helm Chart](./infrastructure/helm-chart/templates/)
 
 - Highly available and load balanced
     - I have configured `HPA`. So, there minimum pod count set as `2` or static replica count minimum as `2` with disabled HPA.
@@ -201,7 +204,7 @@ livenessProbe:
         7. Auto-scaling
         8. Configuration Management
         9. Pod Quotas and Limit Ranges
-    - [Click here to see the deployment file](./infrastructure/helm/templates/deployment.yaml)
+    - [Click here to see full deployment file in helm chart](./infrastructure/helm-chart/templates/deployment.yaml)
 
 - Ensure zero downtime
     - I have added rolling update in deployment file to kept `maxUnavailable` as `0`, `maxSurge` as default `50%`.
@@ -254,14 +257,34 @@ spec:
 
 ## <u>Module 3 - Improvements</u>
 As part of improvements of the application, I have modified the application code and infra side with below changes.
-- Set Logger.
+- Added Logger
     - Added a standard Ruby Logger class for logging. Which will creates a new logger instance that outputs log messages to the standard output (`STDOUT`).
-- Handling Client Disconnect and Errors.
+- Handling Client Disconnect and Errors
     - `rescue EOFError => e` captures the case when the client disconnects unexpectedly.
     - `rescue StandardError => e` captures the case when it got any unexpected error.
 - Image Scanning for vulnerabilities
     - Configured trivy to scan docker image for vulnerability which can help to achieve best security practices.
     - Trivy will scan the image and break the build incase of any vulnerabilities found.
+- Added dependabot
+    - This feature will create pull request incase of any new version available for dependencies and github action versions. Which is very useful in this case to get up-to-date with latest versions in-terms of security best practices.
 - Observability
-    - Observability is very important for an application in terms to logging, metrics, alerting and many more. which can help a project in multiple ways. Here I've configured a basic grafana dashbaord with Prometheus and Loki, where we can visualise the data and metrics to analyse the issues, application performance and many more.
-    - An ideal production environment or in a real time project it can be configured in a different way. I have configured a basic grafana-loki and prometheus stack via helm package manager. Please click here to see the installation steps.
+    - Observability is very important for an application in terms to logging, metrics, alerting and many more. which can help a project in multiple ways. Here I've configured a basic grafana dashbaord with Prometheus and Loki, where we can visualise the data and metrics to analyse the issues, application performance and many more. I have configured it as basic level, but this can be configured in more standard way for a bigger project. Here are some references.
+        - Grafana:
+            - ArgoCD Application: [Please Click here to navigate to the Grafana application file](./infrastructure/argocd/observability/grafana.yaml)
+            - Helm Chart: [Please Click here to see grafana helm chart](./infrastructure/observability/grafana/)
+        - Loki:
+            - ArgoCD Application: [Please Click here to navigate to the Loki application file](./infrastructure/argocd/observability/loki.yaml)
+            - Helm Chart: [Please Click here to see Loki helm chart](./infrastructure/observability/loki/)
+        - Prometheus:
+            - ArgoCD Application: [Please Click here to navigate to the Prometheus application file](./infrastructure/argocd/observability/prometheus.yaml)
+            - Helm Chart: [Please Click here to see Prometheus helm chart](./infrastructure/observability/prometheus/)
+
+
+### Here are some snapshot after implement the changes.
+#### <u>ArgoCD Dashboard</u>
+![](./images/argocd_board.png)
+
+#### <u>Ruby-App Application</u>
+![](./images/ruby_app.png)
+
+#### <u>Rube Application UI</u>
