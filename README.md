@@ -290,7 +290,7 @@ As part of improvements to the application, I have modified the application code
 #### <u>Kubernetes Resources/Objects</u>
 ![](./images/K8s_objects.png)
 
-#### <u>Rube Application UI</u>
+#### <u>Ruby Application</u>
 ![](./images/Ruby_Application_response.png)
 ![](./images/Ruby_Health_Check.png)
 
