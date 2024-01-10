@@ -45,7 +45,7 @@ spec:
         name: tmp-volume
       containers:
         - name: {{ .Release.Name }}
-          image: "ghcr.io/maitymondeep/{{ .Release.Name }}:{{ .Values.imageTag }}"
+          image: "ghcr.io/maitymondeep/ruby-app:{{ .Values.imageTag }}"
           volumeMounts:
           - mountPath: /tmp
             name: tmp-volume
