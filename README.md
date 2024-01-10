@@ -44,7 +44,7 @@ Benefits:
 ## <u>Module-2 - Deploy</u>
 
 I am using GitHub action here to build the application, and to maintain the DevOps and security best practices I have added multiple jobs for a **standard ruby project**, and I will be discussing more in-depth why we need such jobs. Since this is a simple web server we don't need all the steps, I added comments for the same in the pipeline code.
-[Please click Here is the Pipeline Path Reference](./.github/workflows/build-and-deploy.yml). I've explained here every step in detail.
+[Please click Here is the Pipeline Path Reference](./.github/workflows/build-and-deploy-ruby-app.yml). I've explained here every step in detail.
 
 ### Part 1 - Containerise:
 
