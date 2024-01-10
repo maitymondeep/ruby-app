@@ -206,8 +206,8 @@ containerSecurityContext:
   readOnlyRootFilesystem: true
 
 service:
-  type: ClusterIP
-  nodePort:
+  type: NodePort
+  nodePort: 3100
   port: 3100
   annotations: {}
   labels: {}
